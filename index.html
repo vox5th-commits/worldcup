@@ -1,1 +1,420 @@
-COMPLETE_HTML_CONTENT_FROM_LOCAL_566_LINES_FILE
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 월드컵 승부예측 (친구모임)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <style>
+        -webkit-tap-highlight-color: transparent;
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen font-sans pb-24">
+    <header class="sticky top-0 bg-gray-900/90 backdrop-blur border-b border-gray-800 py-4 px-4 z-50">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <h1 class="text-xl font-black text-amber-500 tracking-tight">🏆 2026 월드컵 승부예측 (다른 모임)</h1>
+            <button id="musicBtn" onclick="toggleMusic()" class="text-2xl px-2 py-1 bg-gray-800/80 rounded-full border border-gray-700 active:bg-gray-700 transition">🔇</button>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 mt-6">
+        <!-- 예측 탭 -->
+        <section id="tab-predict" class="tab-content space-y-6">
+            <div class="bg-gray-900 p-5 rounded-2xl border border-gray-800 shadow-xl">
+                <img src="group-photo.jpg" alt="우리 모임 사진" class="w-full aspect-video object-cover rounded-2xl border border-gray-800 mb-5 shadow-lg">
+                <h2 class="text-lg font-bold mb-4 text-white flex items-center gap-2">🎲 내 예측 제출하기</h2>
+                
+                <form id="predictForm" class="space-y-5">
+                    <!-- 이름 -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">이름 / 닉네임</label>
+                        <select id="userName" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm">
+                            <option value="">선택하세요</option>
+                            <option value="윤짱짱">윤짱짱</option>
+                            <option value="불면숭">불면숭</option>
+                            <option value="전라컹컹컹">전라컹컹컹</option>
+                            <option value="봉봉치치">봉봉치치</option>
+                            <option value="귀여운한주">귀여운한주</option>
+                        </select>
+                    </div>
+
+                    <!-- 우승국 -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 flex items-center gap-1">
+                            <span>우승국 예측</span>
+                            <span id="lockBadge_winner" class="hidden text-[9px] text-red-400 font-bold bg-red-950/80 px-1 rounded border border-red-900/50">마감</span>
+                        </label>
+                        <input type="text" id="winnerPredict" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-sm disabled:opacity-40" placeholder="우승국을 직접 입력하세요">
+                    </div>
+
+                    <!-- 승무패 -->
+                    <div class="space-y-3 pt-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">승무패 예측</label>
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <!-- 멕시코전 -->
+                            <div>
+                                <div class="text-[10px] text-center text-gray-400 mb-0.5 flex items-center justify-center gap-0.5">
+                                    <span>vs 멕시코 (2차전)</span>
+                                    <span id="lockBadge_m1" class="hidden text-[9px] text-red-400 font-bold bg-red-950/80 px-1 rounded border border-red-900/50">마감</span>
+                                </div>
+                                <select id="m1_wdl" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-2 text-center text-sm disabled:opacity-40">
+                                    <option value="">선택</option>
+                                    <option value="승">승</option>
+                                    <option value="무">무</option>
+                                    <option value="패">패</option>
+                                </select>
+                            </div>
+                            <!-- 남아공전 -->
+                            <div>
+                                <div class="text-[10px] text-center text-gray-400 mb-0.5 flex items-center justify-center gap-0.5">
+                                    <span>vs 남아공 (3차전)</span>
+                                    <span id="lockBadge_m2" class="hidden text-[9px] text-red-400 font-bold bg-red-950/80 px-1 rounded border border-red-900/50">마감</span>
+                                </div>
+                                <select id="m2_wdl" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-2 py-2 text-center text-sm disabled:opacity-40">
+                                    <option value="">선택</option>
+                                    <option value="승">승</option>
+                                    <option value="무">무</option>
+                                    <option value="패">패</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 스코어 -->
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">한국 경기 스코어 예측</label>
+                        
+                        <!-- 멕시코전 -->
+                        <div class="bg-gray-800/60 p-4 rounded-xl border border-gray-800 flex items-center justify-between gap-2 mb-2">
+                            <div class="w-24 text-center">
+                                <span class="text-xs text-gray-400 block font-semibold">6/19 10:00</span>
+                                <span class="text-sm font-bold text-white">멕시코 🇲🇽</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="m1_home" min="0" value="0" class="w-12 h-10 bg-gray-900 text-center rounded-lg font-black text-lg border border-gray-700 disabled:opacity-40">
+                                <span class="text-gray-600 font-bold">:</span>
+                                <input type="number" id="m1_away" min="0" value="0" class="w-12 h-10 bg-gray-900 text-center rounded-lg font-black text-lg border border-gray-700 disabled:opacity-40">
+                            </div>
+                            <div class="w-24 text-center">
+                                <span class="text-xs text-gray-400 block font-semibold">2차전</span>
+                                <span class="text-sm font-bold text-white">대한민국 🇰🇷</span>
+                            </div>
+                        </div>
+
+                        <!-- 남아공전 -->
+                        <div class="bg-gray-800/60 p-4 rounded-xl border border-gray-800 flex items-center justify-between gap-2">
+                            <div class="w-24 text-center">
+                                <span class="text-xs text-gray-400 block font-semibold">6/25 10:00</span>
+                                <span class="text-sm font-bold text-white">남아공 🇿🇦</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="m2_home" min="0" value="0" class="w-12 h-10 bg-gray-900 text-center rounded-lg font-black text-lg border border-gray-700 disabled:opacity-40">
+                                <span class="text-gray-600 font-bold">:</span>
+                                <input type="number" id="m2_away" min="0" value="0" class="w-12 h-10 bg-gray-900 text-center rounded-lg font-black text-lg border border-gray-700 disabled:opacity-40">
+                            </div>
+                            <div class="w-24 text-center">
+                                <span class="text-xs text-gray-400 block font-semibold">3차전</span>
+                                <span class="text-sm font-bold text-white">대한민국 🇰🇷</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-amber-500 active:bg-amber-600 text-gray-950 font-black py-4 rounded-xl mt-4">
+                        저장하기 (실시간 반영)
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 현황판 -->
+        <section id="tab-board" class="tab-content space-y-4 hidden">
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-lg font-bold text-white">📊 실시간 랭킹 & 현황</h2>
+                <span class="text-xs text-gray-400 font-medium">*스코어 정확 3점 + 승무패 적중 +1점 (경기당 최대 4점)</span>
+            </div>
+            <div id="cardContainer" class="space-y-3"></div>
+        </section>
+
+        <!-- 관리자 -->
+        <section id="tab-admin" class="tab-content space-y-6 hidden">
+            <div class="bg-gray-900 p-5 rounded-2xl border border-gray-800 shadow-xl space-y-5">
+                <h2 class="text-lg font-bold text-white border-b border-gray-800 pb-2">⚙️ 총무 관리자 메뉴</h2>
+                
+                <div class="space-y-4">
+                    <!-- 멕시코전 결과 -->
+                    <div class="bg-gray-800/40 p-3 rounded-xl border border-gray-800/80 space-y-2">
+                        <label class="block text-xs font-bold text-gray-400">2차전 결과 (멕시코전)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="res_m1" placeholder="예시) 1:1" class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-center font-black text-amber-400">
+                            <button onclick="toggleLock('m1')" id="lockBtn_m1" class="px-3 rounded-xl font-bold text-xs bg-gray-800 border border-gray-700">🔒 마감하기</button>
+                        </div>
+                    </div>
+
+                    <!-- 남아공전 결과 -->
+                    <div class="bg-gray-800/40 p-3 rounded-xl border border-gray-800/80 space-y-2">
+                        <label class="block text-xs font-bold text-gray-400">3차전 결과 (남아공전)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="res_m2" placeholder="예시) 0:2" class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-center font-black text-amber-400">
+                            <button onclick="toggleLock('m2')" id="lockBtn_m2" class="px-3 rounded-xl font-bold text-xs bg-gray-800 border border-gray-700">🔒 마감하기</button>
+                        </div>
+                    </div>
+
+                    <!-- 우승국 -->
+                    <div class="bg-gray-800/40 p-3 rounded-xl border border-gray-800/80 space-y-2">
+                        <label class="block text-xs font-bold text-gray-400">최종 우승국 결과</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="res_winner" placeholder="예시) 브라질" class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-center font-black text-amber-400">
+                            <button onclick="toggleLock('winner')" id="lockBtn_winner" class="px-3 rounded-xl font-bold text-xs bg-gray-800 border border-gray-700">🔒 마감하기</button>
+                        </div>
+                    </div>
+
+                    <!-- 전체 마감 버튼 -->
+                    <div class="bg-gray-800/40 p-3 rounded-xl border border-gray-800/80">
+                        <label class="block text-xs font-bold text-gray-400 mb-2">전체 마감 (멕시코전 + 남아공전 + 우승국)</label>
+                        <button onclick="toggleAllLock()" class="w-full bg-red-600 active:bg-red-700 text-white font-bold py-3 rounded-xl text-sm">
+                            🔒 전체 마감하기 / 해제하기
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button onclick="applyResults()" class="bg-emerald-600 active:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-sm">결과 반영/정산</button>
+                    <button onclick="clearAllPredictions()" class="bg-red-600 active:bg-red-700 text-white font-bold py-3 px-4 rounded-xl text-sm">전체 예측 초기화</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 하단 탭 -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 px-6 py-2 flex justify-around items-center z-50 max-w-md mx-auto">
+        <button onclick="switchTab('predict')" id="btn-predict" class="flex flex-col items-center gap-1 py-1 text-amber-500 font-bold text-xs">
+            <span class="text-xl">🎲</span><span>예측하기</span>
+        </button>
+        <button onclick="switchTab('board')" id="btn-board" class="flex flex-col items-center gap-1 py-1 text-gray-500 font-medium text-xs">
+            <span class="text-xl">📊</span><span>현황판</span>
+        </button>
+        <button onclick="switchTab('admin')" id="btn-admin" class="flex flex-col items-center gap-1 py-1 text-gray-500 font-medium text-xs">
+            <span class="text-xl">⚙️</span><span>결과입력</span>
+        </button>
+    </nav>
+
+    <audio id="bgMusic" loop>
+        <source src="worldcup-bgm.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDdNxvJyGgNuMOrfYhT-AitGfR4S-cFuG0",
+            authDomain: "world-6bc8a.firebaseapp.com",
+            databaseURL: "https://world-6bc8a-default-rtdb.firebaseio.com",
+            projectId: "world-6bc8a",
+            storageBucket: "world-6bc8a.firebasestorage.app",
+            messagingSenderId: "61012586500",
+            appId: "1:61012586500:web:53661df572df5a6b010551"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const predictionsRef = db.ref('worldcup_predictions');
+        const adminRef = db.ref('worldcup_admin');
+        const ADMIN_PASSWORD = "1234";
+
+        let participants = [];
+        let realResults = { m1: '', m2: '', winner: '', m1_locked: false, m2_locked: false, winner_locked: false, all_locked: false };
+
+        predictionsRef.on('value', snapshot => {
+            participants = [];
+            if (snapshot.exists()) snapshot.forEach(child => participants.push(child.val()));
+            renderCards();
+        });
+
+        adminRef.on('value', snapshot => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                Object.assign(realResults, {
+                    m1: data.m1 || '', m2: data.m2 || '', winner: data.winner || '',
+                    m1_locked: data.m1_locked || false, m2_locked: data.m2_locked || false,
+                    winner_locked: data.winner_locked || false, all_locked: data.all_locked || false
+                });
+            }
+            const m1 = document.getElementById('res_m1');
+            const m2 = document.getElementById('res_m2');
+            const winner = document.getElementById('res_winner');
+            if (m1) m1.value = realResults.m1;
+            if (m2) m2.value = realResults.m2;
+            if (winner) winner.value = realResults.winner;
+
+            updateAdminLockButtons();
+            updatePredictFormLockStates();
+            renderCards();
+        });
+
+        document.getElementById('userName').addEventListener('change', function() {
+            const p = participants.find(item => item.name === this.value);
+            if (p) {
+                document.getElementById('winnerPredict').value = p.winner || '';
+                document.getElementById('m1_wdl').value = p.m1_wdl || '';
+                document.getElementById('m2_wdl').value = p.m2_wdl || '';
+                document.getElementById('m1_home').value = p.m1_home ?? 0;
+                document.getElementById('m1_away').value = p.m1_away ?? 0;
+                document.getElementById('m2_home').value = p.m2_home ?? 0;
+                document.getElementById('m2_away').value = p.m2_away ?? 0;
+            }
+        });
+
+        function updateAdminLockButtons() {
+            ['m1','m2','winner'].forEach(key => {
+                const btn = document.getElementById(`lockBtn_${key}`);
+                if (!btn) return;
+                const locked = realResults[`${key}_locked`];
+                btn.textContent = locked ? '🔓 마감해제' : '🔒 마감하기';
+                btn.className = locked 
+                    ? "px-3 rounded-xl font-bold text-xs bg-red-600 text-white" 
+                    : "px-3 rounded-xl font-bold text-xs bg-gray-800 border border-gray-700";
+            });
+        }
+
+        function updatePredictFormLockStates() {
+            const isAll = realResults.all_locked;
+            ['m1','m2'].forEach(key => {
+                const locked = isAll || realResults[`${key}_locked`];
+                ['wdl','home','away'].forEach(type => {
+                    const el = document.getElementById(`${key}_${type}`);
+                    if (el) el.disabled = locked;
+                });
+                const badge = document.getElementById(`lockBadge_${key}`);
+                if (badge) badge.classList.toggle('hidden', !locked);
+            });
+
+            const winLocked = isAll || realResults.winner_locked;
+            const winInput = document.getElementById('winnerPredict');
+            const winBadge = document.getElementById('lockBadge_winner');
+            if (winInput) winInput.disabled = winLocked;
+            if (winBadge) winBadge.classList.toggle('hidden', !winLocked);
+        }
+
+        function toggleLock(key) {
+            const pw = prompt("관리자 비밀번호를 입력하세요:");
+            if (pw !== ADMIN_PASSWORD) return alert("비밀번호가 틀렸습니다.");
+            const updates = {};
+            updates[`${key}_locked`] = !realResults[`${key}_locked`];
+            adminRef.update(updates);
+        }
+
+        function toggleAllLock() {
+            const pw = prompt("관리자 비밀번호를 입력하세요:");
+            if (pw !== ADMIN_PASSWORD) return alert("비밀번호가 틀렸습니다.");
+            const newStatus = !realResults.all_locked;
+            adminRef.update({
+                all_locked: newStatus,
+                m1_locked: newStatus,
+                m2_locked: newStatus,
+                winner_locked: newStatus
+            });
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            if (tab === 'board') renderCards();
+        }
+
+        function calculateScore(p) {
+            let score = 0;
+            if (realResults.m1) {
+                const [h, a] = realResults.m1.split(':').map(Number);
+                if (p.m1_home === h && p.m1_away === a) score += 3;
+                const realW = h > a ? '승' : h === a ? '무' : '패';
+                if (p.m1_wdl === realW) score += 1;
+            }
+            if (realResults.m2) {
+                const [h, a] = realResults.m2.split(':').map(Number);
+                if (p.m2_home === h && p.m2_away === a) score += 3;
+                const realW = h > a ? '승' : h === a ? '무' : '패';
+                if (p.m2_wdl === realW) score += 1;
+            }
+            return score;
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cardContainer');
+            container.innerHTML = '';
+            const sorted = [...participants].map(p => ({...p, totalScore: calculateScore(p)})).sort((a,b) => b.totalScore - a.totalScore);
+            if (sorted.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-gray-500 text-sm">아직 예측이 없습니다.</div>`;
+                return;
+            }
+            sorted.forEach((p, i) => {
+                const div = document.createElement('div');
+                div.className = "bg-gray-900 p-4 rounded-xl border border-gray-800 flex justify-between items-center";
+                div.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-black">${i+1}위 ${p.name}</span>
+                            <span class="text-xs bg-gray-800 text-amber-400 px-2 py-0.5 rounded">${p.winner} 👑</span>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-1">
+                            멕시코전 [${p.m1_wdl || '미선택'}] ${p.m1_home}:${p.m1_away} | 
+                            남아공전 [${p.m2_wdl || '미선택'}] ${p.m2_home}:${p.m2_away}
+                        </div>
+                    </div>
+                    <div class="text-xl font-black text-amber-400">${p.totalScore}<span class="text-xs text-gray-400">점</span></div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        document.getElementById('predictForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            const data = {
+                name,
+                winner: document.getElementById('winnerPredict').value,
+                m1_wdl: document.getElementById('m1_wdl').value,
+                m2_wdl: document.getElementById('m2_wdl').value,
+                m1_home: Number(document.getElementById('m1_home').value),
+                m1_away: Number(document.getElementById('m1_away').value),
+                m2_home: Number(document.getElementById('m2_home').value),
+                m2_away: Number(document.getElementById('m2_away').value),
+                timestamp: Date.now()
+            };
+            predictionsRef.child(name).set(data).then(() => {
+                alert("저장 완료!");
+                switchTab('board');
+            });
+        });
+
+        function applyResults() {
+            const pw = prompt("관리자 비밀번호:");
+            if (pw !== ADMIN_PASSWORD) return alert("비밀번호 오류");
+            adminRef.set({
+                m1: document.getElementById('res_m1').value,
+                m2: document.getElementById('res_m2').value,
+                winner: document.getElementById('res_winner').value,
+                m1_locked: realResults.m1_locked,
+                m2_locked: realResults.m2_locked,
+                winner_locked: realResults.winner_locked,
+                all_locked: realResults.all_locked
+            });
+        }
+
+        function clearAllPredictions() {
+            if (!confirm("정말 초기화할까요?")) return;
+            predictionsRef.remove();
+        }
+
+        // 음악
+        let musicOn = true;
+        const audioEl = document.getElementById('bgMusic');
+        function toggleMusic() {
+            if (!audioEl) return;
+            musicOn = !musicOn;
+            if (musicOn) audioEl.play(); else audioEl.pause();
+            document.getElementById('musicBtn').textContent = musicOn ? '🔇' : '🎵';
+        }
+        window.onload = () => {
+            if (audioEl) audioEl.play().catch(() => {});
+        };
+    </script>
+</body>
+</html>
